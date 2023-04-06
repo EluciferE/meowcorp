@@ -1,0 +1,5 @@
+from meowcorp.status.status import StatusEnum, auto
+
+
+class STATUS_CALLBACK(metaclass=StatusEnum):
+    pass

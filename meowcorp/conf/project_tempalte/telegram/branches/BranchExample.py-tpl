@@ -1,0 +1,12 @@
+from meowcorp.interfaces import Branch
+from telegram.status import STATUS_BRANCH
+
+
+class BranchName(Branch):
+    status = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    async def work(self):
+        pass

@@ -1,0 +1,49 @@
+from sqlalchemy import Column, Integer, String, BigInteger
+from sqlalchemy.ext.declarative import declarative_base
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.pool import NullPool
+
+from os import getenv
+from dotenv import load_dotenv
+from telegram.status import STATUS_BRANCH
+
+load_dotenv()
+
+Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    chat_id = Column(BigInteger, primary_key=True)
+    status = Column(String, default=STATUS_BRANCH.START)
+
+    # Extra info
+    username = Column(String)
+    first_name = Column(String)
+    second_name = Column(String)
+
+    def __init__(self, chat_id: int, status: str = None):
+        self.chat_id = chat_id
+        if status is not None:
+            self.status = status
+
+    def __repr__(self) -> str:
+        return f"<User {self.chat_id} status={self.status}>"
+
+
+user = getenv('POSTGRES_USER')
+password = getenv('POSTGRES_PASSWORD')
+host = getenv('POSTGRES_HOST')
+dbName = getenv('POSTGRES_DB_NAME')
+
+engine = create_engine(f"postgresql+psycopg2://{user}:{password}@{host}/{dbName}", poolclass=NullPool)
+Base.metadata.create_all(engine)
+
+
+def getSession() -> Session:
+    Session = sessionmaker()
+    Session.configure(bind=engine)
+    return Session()

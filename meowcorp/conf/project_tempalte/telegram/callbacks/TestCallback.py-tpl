@@ -1,0 +1,12 @@
+from meowcorp.interfaces import Callback
+from telegram.status import STATUS_CALLBACK, STATUS_BRANCH
+
+
+class NameCallback(Callback):
+    status = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    async def work(self):
+        pass
