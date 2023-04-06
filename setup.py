@@ -1,8 +1,5 @@
 from setuptools import setup, find_packages
 
-with open("README.md", "r") as readme_file:
-    readme = readme_file.read()
-
 requirements = [
     "python-dotenv~=0.21.0",
     "sqlalchemy~=1.4.39",
@@ -13,16 +10,16 @@ requirements = [
 setup(
     name="meowcorp",
     version="0.1",
-    author="Meow",
-    author_email="meow@meowcorp.ru",
-    description="Add-on to the library of aiogram",
-    long_description=readme,
-    long_description_content_type="text/markdown",
-    url="https://github.com/EluciferE/meowcorp/",
-    packages=find_packages(),
+    packages=find_packages(include=['meowcorp', 'meowcorp.*', 'meowcorp.conf.project_template.*']),
     install_requires=requirements,
     classifiers=[
         "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     ],
+    include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'meowcorp-admin = meowcorp.commands:execute_from_command_line',
+        ]
+    }
 )
