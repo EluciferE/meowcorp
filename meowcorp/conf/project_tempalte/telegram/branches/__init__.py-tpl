@@ -1,0 +1,75 @@
+from meowcorp.interfaces import Branch
+import os
+import inspect
+import logging
+
+BASE_DIR = os.getcwd()
+BRANCH_PATH = os.path.join(BASE_DIR, 'telegram', 'branches')
+
+
+def import_dir(directory: str):
+    if not os.path.isdir(directory):
+
+        if not directory.endswith('.py'):
+            return []
+
+        # Удаляем начальный путь, чтобы заимпортить внутри
+        # И убираем расширение .py
+        directory = directory[len(BASE_DIR) + 1: -3]
+
+        # Разделяем путь
+        directory = directory.split(os.sep)
+
+        directory = '.'.join(directory)
+
+        classes = __import__(directory, fromlist=('*',))
+
+        answer = []
+
+        for micro_class in dir(classes):
+
+            # Не смотрим на интерфейс
+            if micro_class == 'Branch':
+                continue
+
+            # Импортируем только классы!
+            if not inspect.isclass(getattr(classes, micro_class)):
+                continue
+
+            # Класс должен наследоваться от Branch
+            if not issubclass(getattr(classes, micro_class), Branch):
+                continue
+
+            # У него должно быть поле status
+            if not hasattr(getattr(classes, micro_class), 'status'):
+                logging.warning(f'BRANCH: Класс {micro_class} не имеет поле status')
+                continue
+
+            # У него должно быть проставлено поле status
+            if getattr(getattr(classes, micro_class), 'status') is None:
+                logging.warning(f'BRANCH: Класс {micro_class} не проставлено status')
+                continue
+
+            answer.append(getattr(classes, micro_class))
+
+        return answer
+
+    sub_dirs = os.listdir(directory)
+    answer = []
+    for sub_dir in sub_dirs:
+        if sub_dir.startswith('__'):
+            continue
+
+        dirs = import_dir(os.path.join(directory, sub_dir))
+        answer.extend(dirs)
+
+    return answer
+
+
+branches = [*import_dir(BRANCH_PATH)]
+
+statuses = [getattr(x, 'status') for x in branches]
+if len(set(statuses)) != len(statuses):
+    logging.warning('BRANCH: найдены совпадения статусов!')
+
+logging.info(f'Загружено диологовых веток: {len(branches)}')

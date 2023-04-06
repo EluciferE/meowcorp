@@ -1,0 +1,11 @@
+from settings import LOGGING_CONF
+import logging.config
+from telegram.bot import Bot
+from dotenv import load_dotenv
+
+load_dotenv()
+
+logging.config.dictConfig(LOGGING_CONF)
+
+bot = Bot()
+bot.start()

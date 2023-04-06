@@ -1,0 +1,14 @@
+from meowcorp.interfaces import Branch
+from telegram.status import STATUS_BRANCH
+
+
+class Start(Branch):
+    status = STATUS_BRANCH.START
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    async def work(self):
+        return await self.message.answer(
+            text=self.message.text
+        )

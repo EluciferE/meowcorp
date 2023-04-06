@@ -1,0 +1,90 @@
+import aiogram
+from meowcorp.factory import Factory
+from os import getenv
+from models import User, getSession
+from time import time
+import logging
+
+
+class Bot:
+
+    def __init__(self):
+        self.bot = aiogram.Bot(token=getenv('BOT_TOKEN'))
+        self.dispatcher = aiogram.Dispatcher(bot=self.bot)
+
+        self.logger = logging.getLogger(__name__)
+
+        @self.dispatcher.message_handler(content_types=['contact', 'text', 'document'])
+        async def any_command(message: aiogram.types.Message):
+            if message.chat.type != 'private':
+                print(message)
+                return
+
+            t1 = time()
+            print(f"{message.from_user.username}: {message.text}")
+            self.logger.info(f"{message.from_user.username}: {message.text}")
+            user = None
+            db = None
+
+            try:
+                db = getSession()
+                user = db.query(User).filter_by(chat_id=message.chat.id).first()
+                if not user:
+                    user = User(chat_id=message.chat.id)
+                    db.add(user)
+                    db.commit()
+
+                user.username = message.from_user.username
+                user.first_name = message.from_user.first_name
+                user.second_name = message.from_user.last_name
+
+                factory = Factory(db)
+                await factory.process_branch(user, message)
+
+                db.commit()
+
+                print(f'total time: {time() - t1}')
+                self.logger.info(f'total time: {time() - t1}')
+
+            except Exception as e:
+                if user:
+                    print(f"{user.status}: {e}")
+                    self.logger.error(f"{user.status}: {e}")
+                else:
+                    print(e)
+                    self.logger.error(e)
+
+            finally:
+                if db is not None:
+                    db.close()
+
+        @self.dispatcher.callback_query_handler()
+        async def inlineCallback(call: aiogram.types.CallbackQuery):
+            t1 = time()
+            print(f'{call.from_user.username}: {call.data}')
+            self.logger.info(f'{call.from_user.username}: {call.data}')
+            db = None
+
+            try:
+                db = getSession()
+                user = db.query(User).filter_by(chat_id=call.message.chat.id).first()
+
+                factory = Factory(db)
+                await factory.process_callback(user, call)
+
+                db.commit()
+                print(f'total time: {time() - t1}')
+                self.logger.info(f'total time: {time() - t1}')
+
+            except Exception as e:
+                print(e)
+                self.logger.error(f"{call.data}: {e}")
+
+            finally:
+                if db is not None:
+                    db.close()
+
+    def start(self):
+        self.logger.info("Bot started")
+        print("Bot started")
+        aiogram.executor.start_polling(dispatcher=self.dispatcher, skip_updates=True)
