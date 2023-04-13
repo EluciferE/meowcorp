@@ -41,7 +41,6 @@ def execute_from_command_line():
         return print(BANNER)
 
     if args[0] == "startproject":
-        os.path.normpath(__file__)
         template_dir = os.path.join(
             os.path.dirname(__file__),
             "..",
