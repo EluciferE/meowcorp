@@ -1,4 +1,4 @@
-from settings.settings import SEPARATOR
+from settings.telegram import SEPARATOR
 from meowcorp.exceptions.status import SimilarStatuses
 
 
