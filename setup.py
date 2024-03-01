@@ -13,7 +13,7 @@ requirements = [
 
 setup(
     name="meowcorp",
-    version="0.1.3",
+    version="0.1.4",
     packages=find_packages(include=['meowcorp', 'meowcorp.*', 'meowcorp.conf.project_template.*']),
     description="Add-on to the library of aiogram",
     long_description=readme,
