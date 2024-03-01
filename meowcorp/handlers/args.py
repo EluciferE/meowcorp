@@ -1,6 +1,6 @@
 import inspect
 from models.models import Base
-from settings.settings import SEPARATOR
+from settings.telegram import SEPARATOR
 from meowcorp.exceptions.validation import *
 
 
