@@ -15,7 +15,7 @@ pip install meowcorp
 To start a new project with Meowcorp, run:
 
 ```
-meowcorp-admin startproject
+meowcorp startproject
 ```
 
 This will create a new project with the necessary files and folders.

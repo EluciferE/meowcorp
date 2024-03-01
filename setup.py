@@ -27,7 +27,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'meowcorp-admin = meowcorp.commands:execute_from_command_line',
+            'meowcorp = meowcorp.commands:execute_from_command_line',
         ]
     }
 )
